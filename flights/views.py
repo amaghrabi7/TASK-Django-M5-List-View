@@ -1,4 +1,4 @@
-from rest_framework.generics import ListAPIView, RetrieveAPIView, UpdateAPIView, DestroyAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView, UpdateAPIView, DestroyAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
 from flights.serializers import BookingDetailSerializer, BookingUpdateSerializer, FlightListSerializer, BookingListSerializer
 from .models import Booking, Flight
 from django.utils import timezone
@@ -34,4 +34,10 @@ class BookingDetailUpdateDeleteView(RetrieveUpdateDestroyAPIView):
     serializer_class = BookingDetailSerializer
     lookup_field = "id"
     lookup_url_kwarg = "booking_id"
+
+class BookingCreateView(CreateAPIView):
+    serializer_class = BookingUpdateSerializer
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user, flight_id=self.kwargs["flight_id"])
 

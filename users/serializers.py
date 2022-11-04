@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from rest_framework_simplejwt.tokens import RefreshToken
 
 User = get_user_model()
 
@@ -22,6 +23,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
+    access = serializers.CharField(allow_blank=True, read_only=True)
 
     def validate(self, data):
        my_username = data.get("username")
@@ -34,7 +36,12 @@ class UserLoginSerializer(serializers.Serializer):
 
        if not user_obj.check_password(my_password):
             raise serializers.ValidationError("Incorrect username/password combination!")
-        
+
+       payload = RefreshToken.for_user(user_obj)
+       token = str(payload.access_token)
+
+       data["access"] = token
+
        return data
 
 
